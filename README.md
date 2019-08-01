@@ -2,9 +2,9 @@
 ## [ss-tproxy v4.0](https://github.com/zfl9/ss-tproxy/tree/dev)
 - 去除不常用的 global 模式
 - 支持 ipv4、ipv6 透明代理
-- 使用 [chinadns-ng](https://github.com/zfl9/chinadns-ng) 替代老旧的 [chinadns](https://github.com/shadowsocks/ChinaDNS)，速度更快，修复若干 bug
-- 完美兼容“端口映射”，只会代理“主动出站的流量”，从外部主动发起的连接不会走代理，规则更加细致化
 - 支持设置内网主机白名单，在白名单中的 IP 不会走 ss-tproxy 的代理
+- 完美兼容“端口映射”，只会代理“主动出站的流量”，从外部主动发起的连接不会走代理，规则更加细致化
+- 使用 [chinadns-ng](https://github.com/zfl9/chinadns-ng) 替代老旧的 [chinadns](https://github.com/shadowsocks/ChinaDNS)，速度更快，修复若干 bug（原版不支持 ipv6）
 - 以及其它一些优化
 
 ## 脚本简介
