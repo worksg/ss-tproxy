@@ -1,15 +1,14 @@
 # Linux TCP+UDP 透明代理
 ## [ss-tproxy v4.0](https://github.com/zfl9/ss-tproxy/tree/dev)
 - 去除不常用的 global 模式
-- 支持 ipv4、ipv6 透明代理（注意，ipv6的支持仍然是实验性的）
-- 支持设置内网主机白名单，在白名单中的 IP 不会走 ss-tproxy 的代理
+- 支持 ipv4、ipv6 双协议栈透明代理。
 - 使用 [chinadns-ng](https://github.com/zfl9/chinadns-ng) 替代老旧的 [chinadns](https://github.com/shadowsocks/ChinaDNS)，速度更快，修复若干 bug（原版不支持 ipv6）
-- 完美兼容“端口映射”，只会代理“主动出站的流量”，从外部主动发起的连接不会走代理，规则更加细致化
+- 完美兼容“端口映射”，只代理“主动出站的流量”，外部主动发起流量不会走代理，规则更加细致化
 - 支持只代理指定的目标端口，这样可以比较好的处理 BT/PT 流量
 - 支持自定义 dnsmasq 监听端口，支持加载外部 dnsmasq 配置
 - 当 ss-tproxy 关闭后，支持自动重定向内网主机发出的 dns 请求到本地直连 dns
 - 支持网络可用性检查，避免开机启动失败问题，不需要利用其它的 hook
-- 将 dnsmasq 和 chinadns-ng 的 pid 存在文件中，不需要 ss/netstat、grep/awk 来判断进程是否运行
+- 将 dnsmasq 和 chinadns-ng 的 pid 存在文件中，不需要 ss/netstat、grep/awk 来判断是否运行
 
 ## 脚本简介
 ss-tproxy v3 是 ss-tproxy v2 的精简优化版，v3 版本去掉了很多不是那么常用的代理模式，如 tun2socks、tcponly，并提取出了 ss/ssr/v2ray 等代理软件的相同规则，所以 v3 版本目前只有两大代理模式：REDIRECT + TPROXY、TPROXY + TPROXY（纯 TPROXY 方式）。REDIRECT + TPROXY 是指 TCP 使用 REDIRECT 方式代理而 UDP 使用 TPROXY 方式代理；纯 TPROXY 方式则是指 TCP 和 UDP 均使用 TPROXY 方式代理。目前来说，ss-libev、ssr-libev、v2ray-core、redsocks2 均为 REDIRECT + TPROXY 组合方式，而最新版 v2ray-core 则支持纯 TPROXY 方式的代理。在 v3 中，究竟使用哪种组合是由 `proxy_tproxy='boolean_value'` 决定的，如果为 true 则为纯 TPROXY 模式，否则为 REDIRECT + TPROXY 模式（默认）。
