@@ -359,9 +359,10 @@ resolve_svraddr() {
 }
 
 update_chnlist() {
-    command_is_exists 'curl' || log_error "command not found: curl"
-    local url='https://raw.github.com/felixonmars/dnsmasq-china-list/master/accelerated-domains.china.conf'
-    local data; data=$(curl -4sSkL "$url") || log_error "download failed, exit-code: $?"
+    command_is_exists 'tar'   || log_error "command not found: tar"
+    command_is_exists 'curl'  || log_error "command not found: curl"
+    local url='https://github.com/worksg/IP-UPDATE/raw/master/domains_china.tar.gz'
+    local data; data=$(curl -4sSkL "$url" | tar zxf - -O ) || log_error "download failed, exit-code: $?"
     echo "$data" | awk -F/ '{print $2}' >$file_gfwlist_txt
 }
 
@@ -387,12 +388,13 @@ gfwlist_txt_append_domain_names() {
 }
 
 update_gfwlist() {
+    command_is_exists 'tar'   || log_error "command not found: tar"
     command_is_exists 'curl'   || log_error "command not found: curl"
     command_is_exists 'perl'   || log_error "command not found: perl"
     command_is_exists 'base64' || log_error "command not found: base64"
 
-    local url='https://raw.github.com/gfwlist/gfwlist/master/gfwlist.txt'
-    local data; data=$(curl -4sSkL "$url") || log_error "download failed, exit-code: $?"
+    local url='https://github.com/worksg/IP-UPDATE/raw/master/domains_gfw.tar.gz'
+    local data; data=$(curl -4sSkL "$url" | tar zxf - -O ) || log_error "download failed, exit-code: $?"
 
     local base64_decode=''
     base64 -d       </dev/null &>/dev/null && base64_decode='base64 -d'
@@ -403,16 +405,19 @@ update_gfwlist() {
 }
 
 update_chnroute() {
+    command_is_exists 'tar'  || log_error "command not found: tar"
     command_is_exists 'curl' || log_error "command not found: curl"
-    local url='http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest'
-    local data; data=$(curl -4sSkL "$url") || log_error "download failed, exit-code: $?"
+    local ipv4_url='https://github.com/worksg/IP-UPDATE/raw/master/addr_ipv4.tar.gz'
+    local ipv6_url='https://github.com/worksg/IP-UPDATE/raw/master/addr_ipv6.tar.gz'
+    local ipv4_data; ipv4_data=$(curl -4sSkL "$ipv4_url" | tar zxf - -O ) || log_error "Failed to download ipv4 address list, exit-code: $?"
+    local ipv6_data; ipv6_data=$(curl -4sSkL "$ipv6_url" | tar zxf - -O ) || log_error "Failed to download ipv6 address list, exit-code: $?"
     {
         echo "create chnroute hash:net family inet"
-        echo "$data" | grep CN | grep ipv4 | awk -F'|' '{printf("add chnroute %s/%d\n", $4, 32-log($5)/log(2))}'
+        echo "$ipv4_data" | sed -r 's/^.+$/add chnroute \0/'
     } >$file_chnroute_set
     {
         echo "create chnroute6 hash:net family inet6"
-        echo "$data" | grep CN | grep ipv6 | awk -F'|' '{printf("add chnroute6 %s/%d\n", $4, $5)}'
+        echo "$ipv6_data" | grep CN | grep ipv6 | awk -F'|' '{printf("add chnroute6 %s/%d\n", $4, $5)}'
     } >$file_chnroute6_set
 }
 
